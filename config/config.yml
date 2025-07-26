@@ -1,0 +1,22 @@
+
+input_files:
+  metadata: ".test/metadata.tsv"
+  reference_fasta: ".test/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta" # Optional: Assert not GZIPPED
+  multiqc_config: ".test/multiqc_config.yaml"
+  tss_reference_bed: ".test/ENCFF493CCB.bed" # THIS WILL BE DEPRECATED AND INDSTEAD A USER-DEFINED GENOCDE FILE WILL BE USED TO PRODUCE THE TSS FILE (use oxbow 🤔)
+
+genomes:
+  GRCH38: ".test/GRCh38_no_alt_analysis_set_GCA_000001405.15.fasta"
+qvals:
+  - 0.05
+
+# i32 (1..16) or -1 (all)
+# Default is 1 (report the best alignment)
+k: 1
+
+results_dir: "results" # RELATIVE PATH
+workdir: "/zata/zippy/ramirezc/atac-smk" # ABSOLUTE PATH
+tmpdir: "/tmp" # ABSOLUTE PATH
+logdir: "logs" # RELATIVE PATH
+container: "docker://clarity001/atac-smk:latest"
+conda_env: "envs/idr.yaml"

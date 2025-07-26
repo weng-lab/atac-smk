@@ -53,7 +53,7 @@ def extract_signal_around_tss_with_cut_site(bam_file, tss_df, window=2000):
 
 def calculate_tss_enrichment(matrix):
     """Calculate the TSS enrichment score from the signal matrix."""
-    X_norm = matrix / np.nanmean(np.concatenate([matrix[:, :100], matrix[:, -100:]], axis=1))
+    X_norm = matrix / np.nanmean(np.concatenate([matrix[:, :100], matrix[:, -100:]], axis=1)) # This would represent the background signal presumably?
     enrichment = np.max(np.nanmean(X_norm, axis=0))
     return enrichment
 

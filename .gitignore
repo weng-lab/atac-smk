@@ -1,1 +1,10 @@
 .snakemake
+results*
+logs
+.snakemake
+.config
+.cache
+.test
+prototyping
+workflow/rules/envs/*
+!workflow/rules/envs/idr.yaml

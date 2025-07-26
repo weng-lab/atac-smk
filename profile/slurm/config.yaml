@@ -1,9 +1,127 @@
 executor: slurm
-#use-conda: True
-use-singularity: True
-singularity-prefix: '/zata/zippy/andrewsg/projects/tf-atlas/env'
-singularity-args: '-B /zata:/zata -B /data:/data --nv'
-#directory: '/zata/zippy/andrewsg/projects/tf-atlas/'
 jobs: 128
-latency-wait: 10
-restart-times: 0
+
+set-resources:
+  fastp:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 8
+    cpus_per_task: 8
+    mem_mb: 32000
+  bowtie2_build:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  bowtie2_align:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  filter:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  picard:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 8
+    cpus_per_task: 8
+    mem_mb: 64000
+  bam_to_tagalign:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  macs3_callpeak:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  macs3_signal:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  bedgraphtobigwig:
+    runtime: 240
+    slurm_extra: "--constraint=cascadelake --cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  frag_len:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  frip_all:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 22
+    cpus_per_task: 22
+    mem_mb: 64000
+  tss_enrichment:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 4
+    cpus_per_task: 4
+    mem_mb: 16000
+  pseudoreps:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 4
+    cpus_per_task: 4
+    mem_mb: 16000
+  macs3_pseudoreps:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 4
+    cpus_per_task: 4
+    mem_mb: 16000
+  idr:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 4
+    cpus_per_task: 4
+    mem_mb: 16000
+  overlap_peaks:
+    runtime: 240
+    slurm_extra: "--cpu-freq=High-High:Performance"
+    slurm_partition: 4hours
+    threads: 4
+    cpus_per_task: 4
+    mem_mb: 16000
+
+use-apptainer: True
+use-conda: True
+apptainer-prefix: workflow/rules/envs
+conda-prefix: workflow/rules/envs
+apptainer-args: -B /zata,/data
+
+retries: 1
+rerun-incomplete: True
+printshellcmds: True
+keep-incomplete: True
