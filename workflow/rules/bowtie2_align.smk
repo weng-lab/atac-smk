@@ -14,8 +14,8 @@ rule bowtie2_align:
             ".1.bt2l", ".2.bt2l", ".3.bt2l", ".4.bt2l",
             ".rev.1.bt2l", ".rev.2.bt2l"
         ),
-        R1=f"{RESULTS_DIR}/processed/{{sample}}/{{sample}}_R1.fastq.gz",
-        R2=f"{RESULTS_DIR}/processed/{{sample}}/{{sample}}_R2.fastq.gz"
+        R1=f"{RESULTS_DIR}/fastp/{{sample}}_R1.fastq.gz",
+        R2=f"{RESULTS_DIR}/fastp/{{sample}}_R2.fastq.gz"
     output:
         f"{RESULTS_DIR}/bowtie2_align/{{sample}}-{{genome}}.bam"
     params:
@@ -36,7 +36,7 @@ rule bowtie2_align:
             -2 {input.R2} | \
             samtools view -@ {resources.threads} -1 -S /dev/stdin > /tmp/{wildcards.sample}-{wildcards.genome}.tmp.bam
         samtools sort -@ {resources.threads} -T {wildcards.sample}-{wildcards.genome} -o {output} /tmp/{wildcards.sample}-{wildcards.genome}.tmp.bam
-        samtools flagstat -@ {resources.threads} --output-fmt "json" {output} > {output}.flagstat.json
+        samtools flagstat -@ {resources.threads} {output} > {output}.flagstat
         rm /tmp/{wildcards.sample}-{wildcards.genome}.tmp.bam
         """
 

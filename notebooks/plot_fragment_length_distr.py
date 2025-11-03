@@ -2,28 +2,27 @@ import subprocess
 from collections import Counter
 import matplotlib.pyplot as plt
 import argparse
-import pysam
 
-
-def calculate_fragment_length_distribution(bam_file):
-    """ Calculate the fragment length distribution from a BAM file using samtools.
+def calculate_fragment_length_distribution(bam_file, threads=1): """ Calculate the fragment length distribution from a BAM file using samtools.
 
     :param bam_file: Path to the input BAM file.
     :param threads: Number of threads for samtools (default: 1).
     :return: A dictionary where keys are fragment lengths and values are their frequencies.
     """
-
+    def _clean_abs_int(x):
+        if x is not None and x != '':
+            x = x.strip()
+            return int(x)
     try:
-        # Step 1: Extract fragment lengths using pysam
-        all_fragment_lengths = []
-        with pysam.AlignmentFile(bam_file, "rb") as bam:
-            fragment_lengths = bam.fetch(until_eof=True)
-            for fragment in fragment_lengths:
-                if fragment.template_length < 0:
-                    continue
-                all_fragment_lengths.append(fragment.template_length)
-            
-        distribution = Counter(all_fragment_lengths)
+        # Step 1: Extract fragment lengths using samtools and awk
+        cmd = f"samtools view -@ {threads} -f 2 {bam_file} | awk '{{if ($9 > 0) print $9}}'"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
+        with open("debug.txt", "w") as f:
+            f.write(result.stdout)
+        fragment_lengths = result.stdout.split("\n")
+        clean_fragment_lengths = [_clean_abs_int(x) for x in fragment_lengths]
+        cleaner_fragment_lengths = [x for x in clean_fragment_lengths if x is not None]
+        distribution = Counter(cleaner_fragment_lengths)
         return dict(distribution)
 
     except subprocess.CalledProcessError as e:
@@ -52,7 +51,7 @@ def plot_fragment_length_distribution(distribution, output_file, max_length=1000
     limited_counts = [distribution[l] for l in limited_lengths]
 
     # Calculate total number of fragments
-    total_fragments = sum(counts)
+    total_fragments = sum(distribution.values())
 
     # Define nucleosome regions and calculate percentages
     nucleosome_ranges = {
@@ -103,8 +102,6 @@ def save_fragment_statistics(distribution, output_file, max_length=1000):
     """
     total_fragments = sum(distribution.values())
 
-    # TODO: Make this JSON smh
-
     # Define nucleosome regions
     nucleosome_ranges = {
         "Nucleosome-free (< 147bp)": (0, 147),
@@ -132,10 +129,9 @@ def main():
 
     # Step 1: Calculate fragment length distribution
     try:
-        distribution = calculate_fragment_length_distribution(args.bam_file)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        raise
+        distribution = calculate_fragment_length_distribution(args.bam_file, threads=args.threads)
+    except:
+        distrubution = calculate_fragment_length_distribution(args.bam_file)
 
     # Step 2: Plot fragment length distribution
     plot_fragment_length_distribution(distribution, args.output_png)

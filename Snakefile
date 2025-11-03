@@ -5,6 +5,8 @@ import sys
 configfile: "config/config.yml"
 workdir: config["workdir"]
 
+os.makedirs(config.get("picard_tmpdir", ".picard"), exist_ok=True)
+
 include: "workflow/rules/common.smk"
 include: "workflow/rules/fastp.smk"
 include: "workflow/rules/bowtie2_build.smk"
@@ -18,16 +20,20 @@ include: "workflow/rules/macs3_callpeak.smk"
 include: "workflow/rules/frag_len.smk"
 include: "workflow/rules/tss_enrichment.smk"
 include: "workflow/rules/frip_all.smk"
-include: "workflow/rules/psudoreplicated_peaks.smk"
+include: "workflow/rules/pseudoreplicated_peaks.smk"
 include: "workflow/rules/multiqc.smk"
+include: "workflow/rules/chrombpnet.smk"
+
+# wildcard_constraints:
+#     q="^(?:0*(?:\.\d+)?|1(\.0*)?)$"
 
 rule all:
     input:
         # fastp (replaces fastqc-cutadapt-fastqc sequence)
         expand(
           [
-            f"{RESULTS_DIR}/processed/{{sample}}/{{sample}}_R1.fastq.gz",
-            f"{RESULTS_DIR}/processed/{{sample}}/{{sample}}_R2.fastq.gz",
+            f"{RESULTS_DIR}/fastp/{{sample}}_R1.fastq.gz",
+            f"{RESULTS_DIR}/fastp/{{sample}}_R2.fastq.gz",
           ],
           sample=SAMPLES
         ),
@@ -80,9 +86,23 @@ rule all:
             genome=GENOMES,
         ),
 
+        # fold change signal
+        expand(
+            f"{RESULTS_DIR}/macs3_fold_change_signal/{{sample}}-{{genome}}_FE.bw",
+            sample=SAMPLES,
+            genome=GENOMES,
+        ),
+
+        # pvalue signal
+        expand(
+            f"{RESULTS_DIR}/macs3_pvalue_signal/{{sample}}-{{genome}}_ppois.bw",
+            sample=SAMPLES,
+            genome=GENOMES,
+        ),
+
         # MACS3 callpeak
         expand(
-            f"{RESULTS_DIR}/macs3_callpeak/{{q}}/{{sample}}-{{genome}}_peaks.narrowPeak",
+            f"{RESULTS_DIR}/macs3_callpeak/{{q}}/{{sample}}.{{genome}}_peaks.narrowPeak",
             sample=SAMPLES,
             genome=GENOMES,
             q=QVALS
@@ -140,6 +160,20 @@ rule all:
             f"{RESULTS_DIR}/overlap_peaks/{{sample}}-{{genome}}.overlap_peaks.bed",
             genome=GENOMES,
             sample=SAMPLES
+        ),
+        expand(
+            f"{RESULTS_DIR}/overlap_peaks_jill/{{q}}/{{sample}}-{{genome}}.overlap_peaks.bed",
+            q=QVALS,
+            sample=SAMPLES,
+            genome=GENOMES
+        ),
+        expand(
+            [
+                f"{RESULTS_DIR}/chrombpnet/{{sample}}.{{genome}}/chrombpnet_bias.continue",
+                f"{RESULTS_DIR}/chrombpnet/{{sample}}.{{genome}}/chrombpnet_prep_nonpeaks.continue"
+            ],
+            sample=SAMPLES,
+            genome=GENOMES
         ),
 
         # MultQC

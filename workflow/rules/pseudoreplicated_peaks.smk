@@ -9,7 +9,7 @@ rule pseudoreps:
         """
         exec >> {log} 2>&1
         ./workflow/rules/scripts/bedpe_to_pseudoreps.py {input.bedpe} {output.tagalign[0]} {output.tagalign[1]}
-        """    
+        """
 
 rule macs3_pseudoreps:
     input:
@@ -59,4 +59,22 @@ rule overlap_peaks:
         exec >> {log} 2>&1
         bedtools intersect -a {input.narrowpeak[0]} -b {input.narrowpeak[1]} -u | sort -k1,1 -k2,2n > {output.overlap_peaks}
         """
+
+# These are generated from 3 peaks calls, all fragments (p=<defined in configfile), subset 1 (p=0.01), and subset 2 (p=0.01). Peaks from the all fragments are retained if they overlap peaks in both subset 1 and subset 2 by at least 50%.
+
+rule overlap_peaks_jill: 
+    input: 
+        narrowpeak = f"{RESULTS_DIR}/macs3_callpeak/{{q}}/{{sample}}.{{genome}}_peaks.narrowPeak",
+        pseudorep1 = f"{RESULTS_DIR}/macs3_pseudoreps/{{sample}}-{{genome}}-pseudorep1_peaks.narrowPeak", 
+        pseudorep2 = f"{RESULTS_DIR}/macs3_pseudoreps/{{sample}}-{{genome}}-pseudorep2_peaks.narrowPeak",
+    output: 
+        overlap_peaks = f"{RESULTS_DIR}/overlap_peaks_jill/{{q}}/{{sample}}-{{genome}}.overlap_peaks.bed"
+    container: config['container']
+    log: f"{config['logdir']}/overlap_peaks_jill/{{q}}/{{sample}}-{{genome}}.log"
+    shell:
+        """
+        exec >> {log} 2>&1
+        python workflow/rules/scripts/overlap_peaks_jill.py {input.narrowpeak} {input.pseudorep1} {input.pseudorep2} {output.overlap_peaks}
+        """
+
 

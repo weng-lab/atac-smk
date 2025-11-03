@@ -4,13 +4,19 @@ rule picard:
     output: 
         deduped_bam = f"{RESULTS_DIR}/picard/{{sample}}-{{genome}}.bam", 
         picard_report = f"{RESULTS_DIR}/picard/{{sample}}-{{genome}}.txt"
+    params:
+        picard_tmpdir = config.get('picard_tmpdir', ".picard")
     container: "docker://clarity001/atac-smk:latest"
     log: 
         f"{config['logdir']}/picard/{{sample}}-{{genome}}.log"
     shell:
         """
         exec >> {log} 2>&1
-        java -jar /usr/bin/picard.jar MarkDuplicates \
+        
+        PICARD_TMP=$(mktemp -d -p {params.picard_tmpdir} picard_tmp.XXXXXX)
+        trap "rm -r $PICARD_TMP" EXIT
+
+        java -Dorg.xerial.snappy.tempdir=$PICARD_TMP -Djava.io.tmpdir=$PICARD_TMP -jar /usr/bin/picard.jar MarkDuplicates \
             -INPUT {input.bam} \
             -OUTPUT {output.deduped_bam} \
             -METRICS_FILE {output.picard_report} \
@@ -21,5 +27,5 @@ rule picard:
             -VALIDATION_STRINGENCY LENIENT
         samtools quickcheck -v {output.deduped_bam}
         samtools index -@ {resources.threads} {output.deduped_bam} {output.deduped_bam}.bai
-        samtools flagstat -@ {resources.threads} --output-fmt "json" {output.deduped_bam} > {output.deduped_bam}.flagstat.json
+        samtools flagstat -@ {resources.threads} {output.deduped_bam} > {output.deduped_bam}.flagstat
         """

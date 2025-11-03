@@ -92,6 +92,8 @@ def main():
     signal_matrix = extract_signal_around_tss_with_cut_site(args.bam_file, tss_df)
     enrichment_score = calculate_tss_enrichment(signal_matrix)
     
+    # TODO: Just write the value without the "TSS Enrichment Score:" part
+    
     with open(args.output_txt, "w") as f:
         f.write(f"TSS Enrichment Score: {enrichment_score:.2f}\n")
     print(f"TSS enrichment score saved to {args.output_txt}")

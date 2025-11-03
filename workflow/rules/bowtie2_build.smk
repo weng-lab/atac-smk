@@ -1,6 +1,11 @@
+def get_fasta(wildcards):
+    genome = wildcards.genome 
+    result = config['genomes'].get(genome)
+    return result
+
 rule bowtie2_build:
     input:
-        fa = lambda wildcards: config['genomes'].get(wildcards.genome)
+        fa = get_fasta
     output:
         index = multiext(
             f"{RESULTS_DIR}/bowtie2_build/{{genome}}/{{genome}}.fa",

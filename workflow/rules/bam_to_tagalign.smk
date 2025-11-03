@@ -14,4 +14,3 @@ rule bam_to_tagalign:
         exec >> {log} 2>&1
         python ./workflow/rules/scripts/bam_to_tagalign.py {input.bam} {output.bedpe} {RESULTS_DIR}/bedpe_tagalign/{params.prefix}.tagalign --threads {resources.threads}
         """
-

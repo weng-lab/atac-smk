@@ -32,7 +32,7 @@ rule filter:
 
         samtools quickcheck -v {output}
         samtools index -@ {resources.threads} {output} {output}.bai
-        samtools flagstat -@ {resources.threads} --output-fmt "json" {output} > {output}.flagstat.json
+        samtools flagstat -@ {resources.threads} {output} > {output}.flagstat
 
         rm /tmp/{params.prefix}.tmp.nmsrt.bam
         rm /tmp/{params.prefix}.tmp.fixmate.bam
