@@ -3,6 +3,7 @@ results*/
 results/
 notebooks/run_ccre_pipeline/
 notebooks/ccre_pipeline_stuff/
+notebooks/greg_notebooks/
 logs/
 *.tsv
 uv.lock

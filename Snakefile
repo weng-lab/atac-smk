@@ -27,6 +27,9 @@ include: "workflow/rules/chrombpnet.smk"
 # wildcard_constraints:
 #     q="^(?:0*(?:\.\d+)?|1(\.0*)?)$"
 
+onerror:
+    shell("rm -r results/chrombpnet")
+
 rule all:
     input:
         # fastp (replaces fastqc-cutadapt-fastqc sequence)

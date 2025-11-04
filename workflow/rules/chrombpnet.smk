@@ -44,9 +44,11 @@ rule chrombpnet_bias:
 
         OUTPUT_DIR=results/chrombpnet/{wildcards.sample}.{wildcards.genome}/bias_model
 
-        rm -r $OUTPUT_DIR
+        rm -rf $OUTPUT_DIR
         chrombpnet bias pipeline \
-            -d ATAC -itag {input.tagalign} {params.fasta} \
+            -d ATAC \
+            -itag {input.tagalign} \
+            -g {params.fasta} \
             -c {input.chromsizes} \
             -p {input.peaks} \
             -n results/chrombpnet/{wildcards.sample}.{wildcards.genome}.negatives.bed \
@@ -55,4 +57,3 @@ rule chrombpnet_bias:
             -o $OUTPUT_DIR
         touch {output}
         '''
- 

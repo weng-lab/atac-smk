@@ -1,6 +1,9 @@
 executor: slurm
 jobs: 32
 
+resources:
+  chrombpnet_jobs: 28
+
 set-resources:
   fastp:
     runtime: 240
@@ -136,13 +139,15 @@ set-resources:
     cpus_per_task: 13
     mem_mb: 64000
   chrombpnet_prep_nonpeaks:
-    slurm_partition: 'gpu'
+    slurm_partition: "gpu,gpuh200"
+    chrombpnet_jobs: 1
     runtime: 1440
     mem_mb: 96000
     cpus_per_task: 10
     slurm_extra: "--gres=gpu:1"
   chrombpnet_bias:
-    slurm_partition: 'gpu'
+    slurm_partition: "gpu,gpuh200"
+    chrombpnet_jobs: 1
     runtime: 1440
     mem_mb: 96000
     cpus_per_task: 10
@@ -154,7 +159,7 @@ apptainer-prefix: workflow/rules/envs
 conda-prefix: workflow/rules/envs
 apptainer-args: -B /zata,/data
 
-retries: 3
+# retries: 3
 # max-jobs-per-timespan: 1/1s
 rerun-incomplete: True
 printshellcmds: True
